@@ -3,5 +3,6 @@ Software configs
 
 ## Available softwares
 
-- LunarVim(Neovim)
-- zsh
+- [LunarVim(Neovim)](https://www.lunarvim.org)
+- [zsh](https://www.zsh.org/)
+- [starship](https://starship.rs/)
