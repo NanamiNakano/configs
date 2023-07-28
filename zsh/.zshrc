@@ -68,6 +68,20 @@ export LANG=en_US.UTF-8
 ## Brew
 export HOMEBREW_NO_ANALYTICS="true"
 
+local BREW_PREFIX="/opt/homebrew"
+if [[ -f "$HOME/.zi/is_intel" || $(sysctl -n machdep.cpu.brand_string) = *Intel* ]] {
+  touch "$HOME/.zi/is_intel"
+  local BREW_PREFIX="/usr/local"
+}
+
+## ruby
+export PATH="$BREW_PREFIX/opt/ruby/bin:$PATH"
+
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-linux-gnu-gcc
+export CC_x86_64_unknown_linux_gnu=x86_64-linux-gnu-gcc
+export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++
+export AR_x86_64_unknown_linux_gnu=x86_64-linux-gnu-ar
+
 # zsh modules
 zi light-mode for \
   z-shell/z-a-meta-plugins \
