@@ -1,3 +1,5 @@
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 # starship
 eval "$(starship init zsh)"
 
@@ -16,6 +18,7 @@ source "$HOME/.zi/bin/zi.zsh"
 autoload -Uz _zi
 (( ${+_comps} )) && _comps[zi]=_zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
+fpath=(~/.zsh $fpath)
 zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
 # ZSH Option
@@ -166,11 +169,6 @@ bindkey -s "^B" "zo^m"
 bindkey -s "^W" "btm --expanded^M"
 }
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
 # alias
 ## vim
 alias nvim=lvim
@@ -218,55 +216,28 @@ jenv() {
   esac
 }
 
-# copilot cli
-  copilot_what-the-shell () {
-    TMPFILE=$(mktemp);
-    trap 'rm -f $TMPFILE' EXIT;
-    if /Users/nanami/.nvm/versions/node/v18.17.0/bin/github-copilot-cli what-the-shell "$@" --shellout $TMPFILE; then
-      if [ -e "$TMPFILE" ]; then
-        FIXED_CMD=$(cat $TMPFILE);
-        print -s "$FIXED_CMD";
-        eval "$FIXED_CMD"
-      else
-        echo "Apologies! Extracting command failed"
-      fi
-    else
-      return 1
-    fi
-  };
-alias '??'='copilot_what-the-shell';
+update-jenvs () {
+  eval "$(jenv init -)"
+  /bin/rm -rf "~/.jenv"
+  local readonly jenv_global=$(jenv global)
+  fd --type directory --regex '.*\.jdk' /Library/Java/JavaVirtualMachines -x jenv add '{}/Contents/Home'
+  fd --type directory --regex 'openjdk\.jdk' --exact-depth=4 "$(brew --prefix)/Cellar/" -x jenv add '{}/Contents/Home'
+  fd -t=file --glob '*zulu*.pkg' "$(brew --prefix)/Caskroom/" -X rm -rf '{}'
+  jenv rehash
+  jenv global "$jenv_global"
+}
 
-  copilot_git-assist () {
-    TMPFILE=$(mktemp);
-    trap 'rm -f $TMPFILE' EXIT;
-    if /Users/nanami/.nvm/versions/node/v18.17.0/bin/github-copilot-cli git-assist "$@" --shellout $TMPFILE; then
-      if [ -e "$TMPFILE" ]; then
-        FIXED_CMD=$(cat $TMPFILE);
-        print -s "$FIXED_CMD";
-        eval "$FIXED_CMD"
-      else
-        echo "Apologies! Extracting command failed"
-      fi
-    else
-      return 1
-    fi
-  };
-alias 'git?'='copilot_git-assist';
 
-  copilot_gh-assist () {
-    TMPFILE=$(mktemp);
-    trap 'rm -f $TMPFILE' EXIT;
-    if /Users/nanami/.nvm/versions/node/v18.17.0/bin/github-copilot-cli gh-assist "$@" --shellout $TMPFILE; then
-      if [ -e "$TMPFILE" ]; then
-        FIXED_CMD=$(cat $TMPFILE);
-        print -s "$FIXED_CMD";
-        eval "$FIXED_CMD"
-      else
-        echo "Apologies! Extracting command failed"
-      fi
-    else
-      return 1
-    fi
-  };
-alias 'gh?'='copilot_gh-assist';
-alias 'wts'='copilot_what-the-shell';
+## pnpm
+export PNPM_HOME="/Users/nanami/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+## exa
+alias lx="exa -a --icons -G -l"
+alias la="exa -a -G"
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
