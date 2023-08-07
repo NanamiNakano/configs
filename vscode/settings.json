@@ -1,0 +1,10 @@
+{
+  "editor.accessibilitySupport": "off",
+  "editor.fontFamily": "Fira Code Nerd Font Mono, Menlo, Monaco, 'Courier New', monospace",
+  "editor.guides.bracketPairs": true,
+  "redhat.telemetry.enabled": false,
+  "workbench.colorTheme": "Electronic Moonlight more contrast",
+  "terminal.integrated.env.osx": {
+    "FIG_NEW_SESSION": "1"
+  }
+}
