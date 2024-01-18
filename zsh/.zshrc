@@ -1,7 +1,11 @@
 # Fig pre block. Keep at the top of this file.
 [[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
+
 # starship
 eval "$(starship init zsh)"
+
+# brew shell completion
+FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
@@ -25,7 +29,7 @@ zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
 ZI[OPTIMIZE_OUT_DISK_ACCESSES]=1 # slightly faster
 
-# history
+## history
 setopt SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_EXPIRE_DUPS_FIRST HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_SAVE_NO_DUPS INC_APPEND_HISTORY
 
 HISTFILE=~/.zsh_history
@@ -45,7 +49,7 @@ zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
 zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
 zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
 zstyle ':completion:*:default' list-prompt '%S%M matches%s'
-zstyle ':completion:*' format ' %F{yellow}-- %d --%f'
+zstyle ':completion:*' format '[%d]'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
@@ -86,10 +90,12 @@ export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++
 export AR_x86_64_unknown_linux_gnu=x86_64-linux-gnu-ar
 
 # zsh modules
+zinit ice atload"zpcdreplay" atclone"./zplug.zsh" atpull"%atclone"
+
 zi light-mode for \
   z-shell/z-a-meta-plugins \
   Aloxaf/fzf-tab \
-  @annexes @zunit
+  @annexes @zunit \
 
 zi wait lucid light-mode depth"1" for \
   blockf has'lsd' \
@@ -98,6 +104,7 @@ zi wait lucid light-mode depth"1" for \
     z-shell/F-Sy-H \
   atload"_zsh_autosuggest_start;" \
     zsh-users/zsh-autosuggestions \
+    zthxxx/zsh-history-enquirer \
   multisrc="{directories,functions}.zsh" pick"/dev/null" \
     Colerar/omz-extracted \
   blockf has'zoxide' \
@@ -116,9 +123,13 @@ zi wait lucid light-mode depth"1" for \
 
 zi wait'1' lucid light-mode depth"1" for \
   as'completion' \
-    /Users/col/Developer/completions/completions/heif-enc/zsh/_heif-enc \
+    g-plane/pnpm-shell-completion \
+  as'completion' blockf has'conda' \
+    conda-incubator/conda-zsh-completion \
   as'completion' \
     zsh-users/zsh-completions \
+  as'completion'\
+    nix-community/nix-zsh-completions \
   as'completion' blockf has'cargo' \
     https://raw.githubusercontent.com/rust-lang/cargo/master/src/etc/_cargo \
   blockf has'yarn' \
@@ -129,8 +140,6 @@ zi wait'1' lucid light-mode depth"1" for \
         export znt_list_bold="1"' \
     z-shell/zsh-navigation-tools \
   z-shell/ZUI \
-  as'completion' blockf has'exa' \
-    https://raw.githubusercontent.com/ogham/exa/master/completions/zsh/_exa \
   as'completion' blockf has'rustc' \
     https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/rust/_rustc \
   as'completion' blockf has'tmux' pick'completion/zsh' \
@@ -141,10 +150,10 @@ zi wait'1' lucid light-mode depth"1" for \
     https://raw.githubusercontent.com/Colerar/Tracks/cli/completions/_tracks \
   as'completion' blockf has'pandoc' \
     srijanshetty/zsh-pandoc-completion \
-  as'completion' \
-    /Users/col/.sdkman/contrib/completion/bash/sdk \
   blockf has'brew' \
     OMZP::brew \
+  blockf has'nix-shell' \
+    chisui/zsh-nix-shell \
   blockf has'gradle' \
     OMZP::gradle \
   "https://gist.githubusercontent.com/Colerar/2f23c76583ac7866a50cda5bb04ff3a4/raw/sha-alias.plugin.zsh" \
@@ -170,10 +179,12 @@ bindkey -s "^W" "btm --expanded^M"
 }
 
 # alias
+
 ## vim
 alias nvim=lvim
 alias vi=lvim
 alias vim=lvim
+alias neovim=/opt/homebrew/bin/nvim
 
 ## rm
 rm! () {
@@ -227,6 +238,9 @@ update-jenvs () {
   jenv global "$jenv_global"
 }
 
+update-pnpm () {
+  curl -fsSL https://get.pnpm.io/install.sh | sh -
+}
 
 ## pnpm
 export PNPM_HOME="/Users/nanami/Library/pnpm"
@@ -234,10 +248,37 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
+# pnpm end
 
-## exa
-alias lx="exa -a --icons -G -l"
-alias la="exa -a -G"
+##pyenv
+eval "$(pyenv init --path)"
+export PYENV_ROOT="$HOME/.pyenv"
+
+update-brew-pyenvs() {
+    eval "$(pyenv init -)"
+    ln -s $(brew --cellar python)/* ~/.pyenv/versions/
+}
+
+
+## eza
+alias exa=eza
+alias lx="eza -a --icons -G -l"
+alias la="eza -a -G"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/nanami/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/nanami/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/nanami/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/nanami/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
 # Fig post block. Keep at the bottom of this file.
 [[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
