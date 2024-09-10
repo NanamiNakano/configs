@@ -1,14 +1,6 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-
-# starship
-eval "$(starship init zsh)"
-
-# brew shell completion
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
-# iterm2
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+fpath=(~/.zsh $fpath)
+eval "$(fzf --zsh)"
 
 # zi init
 if [[ ! -f $HOME/.zi/bin/zi.zsh ]]; then
@@ -22,8 +14,12 @@ source "$HOME/.zi/bin/zi.zsh"
 autoload -Uz _zi
 (( ${+_comps} )) && _comps[zi]=_zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
-fpath=(~/.zsh $fpath)
-zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
+
+# starship
+eval "$(starship init zsh)"
+
+# iterm2
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # ZSH Option
 
@@ -97,6 +93,7 @@ zi light-mode for \
   Aloxaf/fzf-tab \
   @annexes @zunit \
 
+
 zi wait lucid light-mode depth"1" for \
   blockf has'lsd' \
     "https://gist.githubusercontent.com/Colerar/18fdd01a4231760545542c31835a09a6/raw/zsh-lsd-aliases.sh" \
@@ -119,16 +116,14 @@ zi wait lucid light-mode depth"1" for \
   blockf has'asdf' \
     https://gist.githubusercontent.com/Colerar/0280581a4c7e0fd949d475f48ad779cf/raw/asdf.zsh \
   z-shell/zzcomplete \
-  OMZP::sudo
+  OMZP::sudo \
 
-zi wait'1' lucid light-mode depth"1" for \
-  as'completion' \
-    g-plane/pnpm-shell-completion \
+zi wait'1' lucid light-mode depth"1" atload"zicompinit; zicdreplay" for \
   as'completion' blockf has'conda' \
     conda-incubator/conda-zsh-completion \
   as'completion' \
     zsh-users/zsh-completions \
-  as'completion'\
+  as'completion' \
     nix-community/nix-zsh-completions \
   as'completion' blockf has'cargo' \
     https://raw.githubusercontent.com/rust-lang/cargo/master/src/etc/_cargo \
@@ -191,6 +186,9 @@ rm! () {
   /bin/rm "$@"
 }
 
+##gdb
+alias gdb=aarch64-elf-gdb
+
 rm () {
   echo "Moving to ~/.Trash: ["
   for i in "$@"; do 
@@ -238,47 +236,13 @@ update-jenvs () {
   jenv global "$jenv_global"
 }
 
-update-pnpm () {
-  curl -fsSL https://get.pnpm.io/install.sh | sh -
-}
-
-## pnpm
-export PNPM_HOME="/Users/nanami/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
-##pyenv
-eval "$(pyenv init --path)"
-export PYENV_ROOT="$HOME/.pyenv"
-
-update-brew-pyenvs() {
-    eval "$(pyenv init -)"
-    ln -s $(brew --cellar python)/* ~/.pyenv/versions/
-}
-
-
 ## eza
 alias exa=eza
 alias lx="eza -a --icons -G -l"
 alias la="eza -a -G"
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/nanami/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/nanami/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/nanami/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/nanami/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+## asdf
+. /opt/homebrew/opt/asdf/libexec/asdfs.sh
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+## python
+alias python=python3
