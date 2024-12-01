@@ -1,19 +1,14 @@
-FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-fpath=(~/.zsh $fpath)
-eval "$(fzf --zsh)"
-
-# zi init
-if [[ ! -f $HOME/.zi/bin/zi.zsh ]]; then
+# ZI
+if [[ ! -f $HOME/.zi/bin/zi.zsh ]] {
   print -P "%F{33}▓▒░ %F{160}Installing (%F{33}z-shell/zi%F{160})…%f"
-  command mkdir -p "$HOME/.zi" && command chmod go-rwX "$HOME/.zi"
+  command mkdir -p "$HOME/.zi" && command chmod g-rwX "$HOME/.zi"
   command git clone -q --depth=1 --branch "main" https://github.com/z-shell/zi "$HOME/.zi/bin" && \
     print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
     print -P "%F{160}▓▒░ The clone has failed.%f%b"
-fi
+}
 source "$HOME/.zi/bin/zi.zsh"
 autoload -Uz _zi
 (( ${+_comps} )) && _comps[zi]=_zi
-# examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
 
 # starship
 eval "$(starship init zsh)"
@@ -33,7 +28,11 @@ HISTSIZE=3000
 SAVEHIST=10000
 
 ## pushd and other
-setopt AUTO_PUSHD AUTO_CD AUTO_LIST AUTO_LIST PUSHD_IGNORE_DUPS INTERACTIVE_COMMENTS 
+setopt AUTO_PUSHD AUTO_CD AUTO_LIST AUTO_LIST PUSHD_IGNORE_DUPS INTERACTIVE_COMMENTS
+
+## LS color, defined esp. for cd color, 'cause exa has its own setting
+export CLICOLOR=1
+export LSCOLORS=ExGxFxdaCxDaDahbadeche
 
 ## completion settings - pretty print - ignore case
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
@@ -61,21 +60,12 @@ zstyle ':completion:*' menu select
 ## editor
 export EDITOR=code
 
-## LS color, defined esp. for cd color, 'cause exa has its own setting
-export CLICOLOR=1
-export LSCOLORS=ExGxFxdaCxDaDahbadeche
-
 ## lang
 export LANG=en_US.UTF-8
 
 ## Brew
 export HOMEBREW_NO_ANALYTICS="true"
-
-local BREW_PREFIX="/opt/homebrew"
-if [[ -f "$HOME/.zi/is_intel" || $(sysctl -n machdep.cpu.brand_string) = *Intel* ]] {
-  touch "$HOME/.zi/is_intel"
-  local BREW_PREFIX="/usr/local"
-}
+export HOMEBREW_NO_ENV_HINTS="true"
 
 ## ruby
 export PATH="$BREW_PREFIX/opt/ruby/bin:$PATH"
@@ -85,14 +75,30 @@ export CC_x86_64_unknown_linux_gnu=x86_64-linux-gnu-gcc
 export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++
 export AR_x86_64_unknown_linux_gnu=x86_64-linux-gnu-ar
 
-# zsh modules
-zinit ice atload"zpcdreplay" atclone"./zplug.zsh" atpull"%atclone"
+## CPM, see: https://github.com/cpm-cmake
+export CPM_SOURCE_CACHE="$HOME/.cache/CPM"
 
+## pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+## brew install llvm
+if [[ -d "$LLVM_HOME" ]] {
+  export PATH="$LLVM_HOME/bin:$PATH"
+  export CC="$LLVM_HOME/bin/clang"
+  export CXX="$LLVM_HOME/bin/clang++"
+}
+
+# zsh modules
 zi light-mode for \
   z-shell/z-a-meta-plugins \
   Aloxaf/fzf-tab \
-  @annexes @zunit \
+  @annexes+\
+  @zunit \
 
+# does not work for now
+# zi ice atload"zpcdreplay" atclone"./zplug.zsh" atpull"%atclone"
+# zi light g-plane/pnpm-shell-completion
 
 zi wait lucid light-mode depth"1" for \
   blockf has'lsd' \
@@ -101,40 +107,41 @@ zi wait lucid light-mode depth"1" for \
     z-shell/F-Sy-H \
   atload"_zsh_autosuggest_start;" \
     zsh-users/zsh-autosuggestions \
-    zthxxx/zsh-history-enquirer \
-  multisrc="{directories,functions}.zsh" pick"/dev/null" \
+  multisrc="*.zsh" pick"/dev/null" \
     Colerar/omz-extracted \
   blockf has'zoxide' \
     https://gist.githubusercontent.com/Colerar/ff82d2c9c6211da846b20df146cfa272/raw/zoxide.zsh \
-  blockf has'git' atload'export GPG_TTY=$(tty)' \
-    OMZL::git.zsh \
-    OMZP::git \
-  svn blockf has'pbcopy' \
-    https://github.com/ohmyzsh/ohmyzsh/trunk/plugins/macos \
-  blockf has'code' \
-    OMZP::vscode \
+  blockf has'git' atload'export GPG_TTY=$(tty)' pick="lib/git.zsh" \
+    ohmyzsh/ohmyzsh \
+  blockf has'git' pick="plugins/git/git.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
+  blockf has'pbcopy' pick="plugins/macos/macos.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
+  blockf has'code' pick="plugins/vscode/vscode.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
   blockf has'asdf' \
     https://gist.githubusercontent.com/Colerar/0280581a4c7e0fd949d475f48ad779cf/raw/asdf.zsh \
   z-shell/zzcomplete \
-  OMZP::sudo \
+  blockf has'sudo' pick="plugins/sudo/sudo.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
 
-zi wait'1' lucid light-mode depth"1" atload"zicompinit; zicdreplay" for \
-  as'completion' blockf has'conda' \
-    conda-incubator/conda-zsh-completion \
+zi wait'1' lucid light-mode depth"1" for \
+  as'completion' \
+    /Users/col/Developer/completions/completions/heif-enc/zsh/_heif-enc \
   as'completion' \
     zsh-users/zsh-completions \
-  as'completion' \
-    nix-community/nix-zsh-completions \
   as'completion' blockf has'cargo' \
     https://raw.githubusercontent.com/rust-lang/cargo/master/src/etc/_cargo \
-  blockf has'yarn' \
-    OMZP::yarn \
+  blockf has'yarn' pick="plugins/yarn/yarn.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
   atload'
         export znt_history_active_text="reverse"
         export znt_list_colorpair="white/24"
         export znt_list_bold="1"' \
     z-shell/zsh-navigation-tools \
   z-shell/ZUI \
+  as'completion' blockf has'exa' \
+    https://raw.githubusercontent.com/ogham/exa/master/completions/zsh/_exa \
   as'completion' blockf has'rustc' \
     https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/rust/_rustc \
   as'completion' blockf has'tmux' pick'completion/zsh' \
@@ -145,14 +152,15 @@ zi wait'1' lucid light-mode depth"1" atload"zicompinit; zicdreplay" for \
     https://raw.githubusercontent.com/Colerar/Tracks/cli/completions/_tracks \
   as'completion' blockf has'pandoc' \
     srijanshetty/zsh-pandoc-completion \
-  blockf has'brew' \
-    OMZP::brew \
-  blockf has'nix-shell' \
-    chisui/zsh-nix-shell \
-  blockf has'gradle' \
-    OMZP::gradle \
+  as'completion' \
+    /Users/col/.sdkman/contrib/completion/bash/sdk \
+  blockf has'brew' pick="plugins/brew/brew.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
+  blockf has'gradle' pick="plugins/gradle/gradle.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
   "https://gist.githubusercontent.com/Colerar/2f23c76583ac7866a50cda5bb04ff3a4/raw/sha-alias.plugin.zsh" \
-  OMZP::extract
+  blockf pick="plugins/extract/extract.plugin.zsh" \
+    ohmyzsh/ohmyzsh \
 
 # Key Bindings
 
@@ -191,7 +199,7 @@ alias gdb=aarch64-elf-gdb
 
 rm () {
   echo "Moving to ~/.Trash: ["
-  for i in "$@"; do 
+  for i in "$@"; do
     echo "  $i"
   done
   echo "]"
@@ -240,9 +248,3 @@ update-jenvs () {
 alias exa=eza
 alias lx="eza -a --icons -G -l"
 alias la="eza -a -G"
-
-## asdf
-. /opt/homebrew/opt/asdf/libexec/asdfs.sh
-
-## python
-alias python=python3
