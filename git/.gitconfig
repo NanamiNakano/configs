@@ -42,9 +42,6 @@ cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 trustExitCode = true
 
-[blame]
-ignoreRevsFile = .git-blame-ignore-revs
-
 [url "git@github.com:"]
 insteadOf = https://github.com/
 [url "https://github.com/rust-lang/crates.io-index"]
