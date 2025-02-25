@@ -13,9 +13,6 @@ autoload -Uz _zi
 # starship
 eval "$(starship init zsh)"
 
-# iterm2
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
 # ZSH Option
 
 ZI[OPTIMIZE_OUT_DISK_ACCESSES]=1 # slightly faster
@@ -64,6 +61,12 @@ export EDITOR=code
 export LANG=en_US.UTF-8
 
 ## Brew
+if [ "$(arch)" = "arm64" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 export HOMEBREW_NO_ANALYTICS="true"
 export HOMEBREW_NO_ENV_HINTS="true"
 
@@ -162,6 +165,8 @@ zi wait'1' lucid light-mode depth"1" for \
   blockf pick="plugins/extract/extract.plugin.zsh" \
     ohmyzsh/ohmyzsh \
 
+zicompinit
+
 # Key Bindings
 
 # \e, \E = Escape
@@ -181,13 +186,13 @@ bindkey -s "^B" "zo^m"
 bindkey -s "^W" "btm --expanded^M"
 }
 
-# alias
+# mise
+eval "$(/opt/homebrew/bin/mise activate zsh)"
 
-## vim
-alias nvim=lvim
-alias vi=lvim
-alias vim=lvim
-alias neovim=/opt/homebrew/bin/nvim
+# secretive
+SSH_AUTH_SOCK="$HOME/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh"
+
+# alias
 
 ## rm
 rm! () {
