@@ -1,0 +1,53 @@
+[include]
+path = ~/.gitconfig.private
+
+[commit]
+gpgsign = true
+[tag]
+gpgSign = true
+[gpg]
+format = ssh
+[credential]
+helper = /usr/local/share/gcm-core/git-credential-manager
+
+[init]
+defaultBranch = main
+[pull]
+rebase = true
+[filter "lfs"]
+clean = git-lfs clean -- %f
+smudge = git-lfs smudge -- %f
+process = git-lfs filter-process
+required = true
+[diff]
+colorMoved = default
+
+# brew install git-delta git-interactive-rebase-tool sourcetree
+[core]
+autocrlf = input
+pager = delta
+[sequence]
+editor = interactive-rebase-tool
+[interactive]
+diffFilter = delta --color-only
+[merge]
+conflictstyle = diff3
+[delta]
+navigate = true
+dark = true
+line-numbers = true
+[difftool "sourcetree"]
+cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+[mergetool "sourcetree"]
+cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+trustExitCode = true
+
+[blame]
+ignoreRevsFile = .git-blame-ignore-revs
+
+[url "git@github.com:"]
+insteadOf = https://github.com/
+[url "https://github.com/rust-lang/crates.io-index"]
+insteadOf = https://github.com/rust-lang/crates.io-index
+[fetch]
+parallel = 0 # Automatically select a sensible value
