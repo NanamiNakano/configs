@@ -1,4 +1,3 @@
-. "$HOME/.cargo/env"
+export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="/Users/nanami/.local/bin:$PATH"
-export PATH="/Users/nanami/.deno/bin:$PATH"
-export PATH="~/.fig/bin:$PATH"
