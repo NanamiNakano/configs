@@ -7,7 +7,6 @@ if [[ ! -f $HOME/.zi/bin/zi.zsh ]] {
     print -P "%F{160}▓▒░ The clone has failed.%f%b"
 }
 source "$HOME/.zi/bin/zi.zsh"
-autoload -Uz _zi
 (( ${+_comps} )) && _comps[zi]=_zi
 
 # starship
@@ -128,9 +127,7 @@ zi wait lucid light-mode depth"1" for \
   blockf has'sudo' pick="plugins/sudo/sudo.plugin.zsh" \
     ohmyzsh/ohmyzsh \
 
-zi wait'1' lucid light-mode depth"1" for \
-  as'completion' \
-    /Users/col/Developer/completions/completions/heif-enc/zsh/_heif-enc \
+zi wait'1' lucid atload"zicompinit; zicdreplay" light-mode depth"1" for \
   as'completion' \
     zsh-users/zsh-completions \
   as'completion' blockf has'cargo' \
@@ -155,8 +152,8 @@ zi wait'1' lucid light-mode depth"1" for \
     https://raw.githubusercontent.com/Colerar/Tracks/cli/completions/_tracks \
   as'completion' blockf has'pandoc' \
     srijanshetty/zsh-pandoc-completion \
-  as'completion' \
-    /Users/col/.sdkman/contrib/completion/bash/sdk \
+  blockf has'just' \
+    "https://gist.githubusercontent.com/NanamiNakano/b4a03349e91dc9080b108dc8acd67a4a/raw/ac73baf4c0633915e9a4bf68605683fe64f136e2/_just" \
   blockf has'brew' pick="plugins/brew/brew.plugin.zsh" \
     ohmyzsh/ohmyzsh \
   blockf has'gradle' pick="plugins/gradle/gradle.plugin.zsh" \
@@ -166,6 +163,7 @@ zi wait'1' lucid light-mode depth"1" for \
     ohmyzsh/ohmyzsh \
 
 zicompinit
+autoload -Uz _zi
 
 # Key Bindings
 
